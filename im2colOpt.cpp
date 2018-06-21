@@ -6,13 +6,15 @@ extern"C"
 {
     #include<cblas.h>
 }
+#include <omp.h>
 using namespace std;
 
 const int KERNEL_NUM = 5;
 const int KERNEL_H = 11;
 const int KERNEL_W = 11;
-const int IMG_H = 227;
-const int IMG_W = 227;
+const int IMG_H = 1000;
+const int IMG_W = 1000;
+const int THREAD_NUM = 4;
 
 void im2col_cpu(float** data_im, const int height,
     const int width, const int kernel_h,
@@ -80,6 +82,7 @@ int main() {
 
     // TODO:使用BLAS进行大矩阵乘法运算
     float** filter_img_list = new float*[output_h];
+    #pragma omp parallel for num_threads(THREAD_NUM)
     for (int i=0; i < output_h ; i++) {
         filter_img_list[i] = new float[KERNEL_NUM*output_w];
         cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans,KERNEL_NUM,
@@ -110,7 +113,7 @@ int main() {
 
     // 结束计时
     gettimeofday(&tend, NULL);
-    cout<<"Total time cost: "<<(tend.tv_sec-tstart.tv_sec)*1000 + (tend.tv_usec-tstart.tv_usec)/1000<<" ms"<<endl;
+    cout<<"[im2colOpt " << IMG_H << "*" << IMG_W << "]Total time cost: "<<(tend.tv_sec-tstart.tv_sec)*1000 + (tend.tv_usec-tstart.tv_usec)/1000<<" ms"<<endl;
 
     // 释放kernel_list矩阵所占内存
     for (int i=0;i<KERNEL_NUM;i++) {
@@ -133,6 +136,7 @@ void im2col_cpu(float** data_im, const int height,
     const int stride) {
     const int output_w = width - (kernel_w-1);
     const int output_h = height - (kernel_h - 1);
+    #pragma omp parallel for num_threads(THREAD_NUM)
     for (int output_col = 0; output_col < output_w; output_col++) {
         int output_row = 0;
         for (int input_row = 0; input_row < height; input_row++) {

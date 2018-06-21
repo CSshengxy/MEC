@@ -11,8 +11,8 @@ using namespace std;
 const int KERNEL_NUM = 5;
 const int KERNEL_H = 11;
 const int KERNEL_W = 11;
-const int IMG_H = 227;
-const int IMG_W = 227;
+const int IMG_H = 1000;
+const int IMG_W = 1000;
 
 void im2col_cpu(float** data_im, const int height,
         const int width, const int kernel_h,
@@ -74,7 +74,7 @@ int main() {
 
     // 结束计时
     gettimeofday(&tend, NULL);
-    cout<<"Total time cost: "<<(tend.tv_sec-tstart.tv_sec)*1000 + (tend.tv_usec-tstart.tv_usec)/1000<<" ms"<<endl;
+    cout<<"[im2colBase " << IMG_H << "*" << IMG_W << "]Total time cost: "<<(tend.tv_sec-tstart.tv_sec)*1000 + (tend.tv_usec-tstart.tv_usec)/1000<<" ms"<<endl;
 
     // 释放kernel_list矩阵所占内存
     for (int i=0;i<KERNEL_NUM;i++) {
